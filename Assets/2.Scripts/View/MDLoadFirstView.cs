@@ -15,6 +15,8 @@ public class MDLoadFirstView : MonoBehaviour
 
     private void Awake()
     {
+        Application.targetFrameRate = 60;
+
         MDEmoteController.Api = new MDEmoteController();
 
         MDEmoteController.Api.OnGetEmoteEvent += FindEmote;
@@ -22,7 +24,7 @@ public class MDLoadFirstView : MonoBehaviour
 
     private void FindEmote(string id, int emoteIndex)
     {
-        if(emoteIndex > 0 && emoteIndex <= m_SpirteEmoteList.Count - 1)
+        if (emoteIndex > 0 && emoteIndex <= m_SpirteEmoteList.Count - 1)
         {
             MDEmoteController.Api.SendEmote(id, m_SpirteEmoteList[emoteIndex]);
         }

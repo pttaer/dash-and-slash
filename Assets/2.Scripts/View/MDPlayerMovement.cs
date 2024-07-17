@@ -7,6 +7,8 @@ public class MDPlayerMovement : MonoBehaviour
     private SpriteRenderer m_Sr;
     private Rigidbody2D m_Rb;
     [SerializeField] int m_Speed = 5;
+    [SerializeField] Sprite m_FrontSprite;
+    [SerializeField] Sprite m_BackSprite;
 
     private void Start()
     {
@@ -18,16 +20,21 @@ public class MDPlayerMovement : MonoBehaviour
     {
         m_Movement = value.Get<Vector2>();
 
-        if(m_Movement.x != 0)
+        if (m_Movement.x != 0)
         {
             m_Sr.flipX = m_Movement.x < 0;
+        }
+
+        if (m_Movement.y != 0)
+        {
+            m_Sr.sprite = m_Movement.y > 0 ? m_BackSprite : m_FrontSprite;
         }
     }
 
     private void FixedUpdate()
     {
         // Movement type 1 (use time delta)
-         m_Rb.MovePosition(m_Rb.position + m_Movement * m_Speed * Time.fixedDeltaTime );
+        m_Rb.MovePosition(m_Rb.position + m_Movement * m_Speed * Time.fixedDeltaTime);
 
         // Movement type 2 (use velocity)
         /*if (m_Movement.x != 0 || m_Movement.y != 0)

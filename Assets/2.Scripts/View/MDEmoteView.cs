@@ -6,6 +6,6 @@ public class MDEmoteView : MonoBehaviour
 {
     private void OnEnable()
     {
-
+        
     }
 }

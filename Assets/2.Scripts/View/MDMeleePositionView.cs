@@ -7,7 +7,8 @@ public class MDMeleePositionView : MonoBehaviour
     Vector3 m_MousePos;
     Vector3 m_ScreenPoint;
     Vector3 m_Offset;
-    float m_Angle;
+    public float m_Angle;
+    public int m_NormalAttackDamage = 10;
 
     void Update()
     {

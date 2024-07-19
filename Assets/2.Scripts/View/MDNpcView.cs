@@ -8,6 +8,7 @@ using UnityEngine;
 public class MDNpcView : MonoBehaviour
 {
     private string m_Id;
+
     private SpriteRenderer m_SrPrefEmote;
 
     private void OnDestroy()

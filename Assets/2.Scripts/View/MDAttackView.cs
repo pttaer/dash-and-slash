@@ -8,7 +8,7 @@ public class MDAttackView : MonoBehaviour
 {
     [SerializeField] float m_MeleeSpeed;
 
-    [SerializeField] int m_NormalAttackDamage = 50;
+    [SerializeField] MDMeleePositionView m_MeleePosView;
 
     private Transform m_TfSword;
 
@@ -20,6 +20,7 @@ public class MDAttackView : MonoBehaviour
     {
         m_TfSword = transform.Find("Sword");
         m_TfSwordSprite = m_TfSword.Find("GFX");
+        m_MeleePosView = m_TfSword.GetComponent<MDMeleePositionView>();
     }
 
     void Update()
@@ -42,26 +43,17 @@ public class MDAttackView : MonoBehaviour
     {
         m_TfSwordSprite.gameObject.SetActive(true);
 
-        float currentRotation = m_TfSword.rotation.z;
+        bool isLeftSwing = m_MeleePosView.m_Angle < 0 && m_MeleePosView.m_Angle > - 180;
+        
+        Debug.Log("Run here m_MeleePosView.m_Angle" + m_MeleePosView.m_Angle);
 
-        Debug.Log("Run here " + currentRotation);
+        m_TfSwordSprite.DOLocalRotate(isLeftSwing ? new Vector3(0, 0, 40) : new Vector3(0, 0, -40), 0);
+        m_TfSword.DOLocalRotate(isLeftSwing ? new Vector3(0, 0, -10) : new Vector3(0, 0, 10), 0);
 
-        bool isLeftSwing = currentRotation > 0;
-
-        m_TfSwordSprite.DORotate(isLeftSwing ? new Vector3(0, 0, -40) : new Vector3(0, 0, 40), 0); 
-
-        m_TfSword.DORotate(new Vector3(m_TfSword.rotation.x, m_TfSword.rotation.y, isLeftSwing ? currentRotation + 110 : currentRotation - 110), 0.15f).SetEase(Ease.InOutExpo).OnComplete(() =>
+        m_TfSword.DOLocalRotate(new Vector3(m_TfSword.rotation.x, m_TfSword.rotation.y, isLeftSwing ? 175 : -175), 0.35f).SetEase(Ease.OutQuint).OnComplete(() =>
         {
             m_TfSwordSprite.gameObject.SetActive(false);
+            m_TfSword.DOLocalRotate(new Vector3(0, 0, 0), 0);
         });
-    }
-
-    private void OnTriggerEnter2D(Collider2D collision)
-    {
-        if (collision.CompareTag("Enemy"))
-        {
-            collision.GetComponent<MDEnemyView>().TakeDamage(m_NormalAttackDamage);
-            Debug.Log("Run here " + collision.tag);
-        }
     }
 }

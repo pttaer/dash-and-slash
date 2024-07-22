@@ -17,6 +17,14 @@ public class MDEnemyView : MonoBehaviour
 
     private SpriteRenderer m_Sr;
 
+    [SerializeField] bool m_IsNpc = true;
+
+    [SerializeField] CircleCollider2D m_SpecificCollider;
+
+    [SerializeField] float m_DashTimeout = 0;
+
+    private bool m_IsDashing = false;
+
     private void Start()
     {
         m_Sr = GetComponent<SpriteRenderer>();
@@ -42,7 +50,23 @@ public class MDEnemyView : MonoBehaviour
         }
     }
 
-    void Update() // Or a suitable update function based on your game logic
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (m_SpecificCollider != null && collision == m_SpecificCollider)
+        {
+
+        }
+    }
+
+    private void Dash()
+    {
+        Debug.Log("Run here DASH");
+        transform.position = Vector2.MoveTowards(transform.position, m_TfPlayer.position, m_Speed);
+        m_DashTimeout = 5f;
+        m_IsDashing = true;
+    }
+
+    void FixedUpdate() // Or a suitable update function based on your game logic
     {
         // Raycast from enemy position towards player in 2D space
         Vector2 raycastOrigin = transform.position;
@@ -50,19 +74,37 @@ public class MDEnemyView : MonoBehaviour
 
         RaycastHit2D hit = Physics2D.Raycast(raycastOrigin, raycastDirection);
 
-        // Handle the hit and miss cases
+        // Handle the hit and miss cases    
 
         if (hit.collider.CompareTag("Player"))
         {
             Debug.DrawRay(raycastOrigin, raycastDirection * hit.distance, Color.blue);
-            Debug.Log("Did Hit: " + hit.collider.gameObject.name);
-            // Handle collision with the object (e.g., attack the player)
-            transform.position = Vector2.MoveTowards(transform.position, m_TfPlayer.position, m_Speed * Time.deltaTime);
+            //Debug.Log("Did Hit: " + hit.collider.gameObject.name);
+            if (!m_IsDashing && m_DashTimeout < 0)
+            {
+                Dash();
+            }
+            else
+            {
+                // Handle collision with the object (e.g., attack the player)
+                transform.position = Vector2.Lerp(transform.position, m_TfPlayer.position, m_Speed * Time.deltaTime);
+
+                m_DashTimeout -= Time.deltaTime;
+
+                if(m_DashTimeout < 0)
+                {
+                    m_IsDashing = false;
+                }
+            }
         }
         else
         {
             Debug.DrawRay(raycastOrigin, raycastDirection, Color.red);
             Debug.Log("Did not Hit");
+            if(m_IsDashing)
+            {
+                m_IsDashing = false;
+            }
         }
     }
 }

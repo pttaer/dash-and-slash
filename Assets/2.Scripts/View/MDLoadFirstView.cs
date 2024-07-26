@@ -18,6 +18,7 @@ public class MDLoadFirstView : MonoBehaviour
         Application.targetFrameRate = 60;
 
         MDEmoteController.Api = new MDEmoteController();
+        MDDamageController.Api = new MDDamageController();
 
         MDEmoteController.Api.OnGetEmoteEvent += FindEmote;
     }

@@ -11,7 +11,7 @@ public class MDEnemyView : MonoBehaviour
 
     [SerializeField] Color m_HitColor = Color.red;
 
-    [SerializeField] Transform m_TfPlayer;
+    [SerializeField] Transform m_TfPlayer; // Also rotation center
 
     [SerializeField] LayerMask m_PlayerLayer;
 
@@ -24,6 +24,14 @@ public class MDEnemyView : MonoBehaviour
     [SerializeField] float m_DashTimeout = 0;
 
     private bool m_IsDashing = false;
+
+    [SerializeField] float m_StopDistance = 4f;
+
+    [SerializeField] float m_RotationRadius = 4f;
+
+    [SerializeField] float m_AngularSpeed = 2f;
+
+    private float m_PosX, m_PosY, m_Angle = 0f;
 
     private void Start()
     {
@@ -54,19 +62,23 @@ public class MDEnemyView : MonoBehaviour
     {
         if (m_SpecificCollider != null && collision == m_SpecificCollider)
         {
-
+            
         }
     }
 
     private void Dash()
     {
-        Debug.Log("Run here DASH");
-        transform.position = Vector2.MoveTowards(transform.position, m_TfPlayer.position, m_Speed);
-        m_DashTimeout = 5f;
-        m_IsDashing = true;
+        m_Sr.DOColor(Color.blue, 0.1f).SetEase(Ease.InOutExpo).OnComplete(() =>
+        {
+            transform.position = Vector2.Lerp(transform.position, m_TfPlayer.position, m_Speed);
+            Debug.Log("Run here DASH");
+            m_DashTimeout = 5f;
+            m_IsDashing = true;
+            m_Sr.DOColor(Color.white, 0.1f).SetEase(Ease.InOutExpo);
+        });
     }
 
-    void FixedUpdate() // Or a suitable update function based on your game logic
+    void Update() // Or a suitable update function based on your game logic
     {
         // Raycast from enemy position towards player in 2D space
         Vector2 raycastOrigin = transform.position;
@@ -79,21 +91,23 @@ public class MDEnemyView : MonoBehaviour
         if (hit.collider.CompareTag("Player"))
         {
             Debug.DrawRay(raycastOrigin, raycastDirection * hit.distance, Color.blue);
+
             //Debug.Log("Did Hit: " + hit.collider.gameObject.name);
-            if (!m_IsDashing && m_DashTimeout < 0)
+            //Debug.Log("Run here " + Vector2.Distance(transform.position, m_TfPlayer.position));
+
+            if (Vector2.Distance(transform.position, m_TfPlayer.position) < m_StopDistance)
             {
-                Dash();
+                RotateAroundPlayer();
             }
             else
             {
-                // Handle collision with the object (e.g., attack the player)
-                transform.position = Vector2.Lerp(transform.position, m_TfPlayer.position, m_Speed * Time.deltaTime);
-
-                m_DashTimeout -= Time.deltaTime;
-
-                if(m_DashTimeout < 0)
+                if (!m_IsDashing && m_DashTimeout < 0)
                 {
-                    m_IsDashing = false;
+                    Dash();
+                }
+                else
+                {
+                    MoveToPlayer();
                 }
             }
         }
@@ -105,6 +119,36 @@ public class MDEnemyView : MonoBehaviour
             {
                 m_IsDashing = false;
             }
+        }
+    }
+
+    private void RotateAroundPlayer()
+    {
+        //m_AngularSpeed = Random.Range(-0.5f, 0.5f);
+
+        m_PosX = m_TfPlayer.position.x + Mathf.Cos(m_Angle) * m_RotationRadius;
+        m_PosY = m_TfPlayer.position.y + Mathf.Sin(m_Angle) * m_RotationRadius;
+
+        transform.position = Vector2.Lerp(transform.position, new Vector2(m_PosX, m_PosY), m_Speed * Time.deltaTime);
+
+        m_Angle = m_Angle + Time.deltaTime * m_AngularSpeed;
+
+        if (m_Angle >= 360f)
+        {
+            m_Angle = 0;
+        }
+    }
+
+    private void MoveToPlayer()
+    {
+        // Handle collision with the object (e.g., attack the player)
+        transform.position = Vector2.Lerp(transform.position, m_TfPlayer.position, m_Speed * Time.deltaTime);
+
+        m_DashTimeout -= Time.deltaTime;
+
+        if (m_DashTimeout < 0)
+        {
+            m_IsDashing = false;
         }
     }
 }

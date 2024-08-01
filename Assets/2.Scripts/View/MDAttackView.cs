@@ -3,12 +3,14 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static UnityEditor.Experimental.GraphView.GraphView;
+using UnityEngine.InputSystem;
 
 public class MDAttackView : MonoBehaviour
 {
     [SerializeField] float m_MeleeSpeed;
 
-    [SerializeField] MDMeleePositionView m_MeleePosView;
+    private MDMeleePositionView m_MeleePosView;
 
     private Transform m_TfSword;
 
@@ -43,14 +45,12 @@ public class MDAttackView : MonoBehaviour
     {
         m_TfSwordSprite.gameObject.SetActive(true);
 
-        bool isLeftSwing = m_MeleePosView.m_Angle < 0 && m_MeleePosView.m_Angle > - 180;
-        
-        Debug.Log("Run here m_MeleePosView.m_Angle" + m_MeleePosView.m_Angle);
+        // Assuming m_MeleePosView.m_Angle is in degrees
 
-        m_TfSwordSprite.DOLocalRotate(isLeftSwing ? new Vector3(0, 0, 40) : new Vector3(0, 0, -40), 0);
-        m_TfSword.DOLocalRotate(isLeftSwing ? new Vector3(0, 0, -10) : new Vector3(0, 0, 10), 0);
+        // Change the rotation of the sword base on the direction of mouse to player
+        Vector3 swingRotation = new Vector3(m_TfSword.rotation.eulerAngles.x, m_TfSword.rotation.eulerAngles.y, m_MeleePosView.m_Angle - 90);
 
-        m_TfSword.DOLocalRotate(new Vector3(m_TfSword.rotation.x, m_TfSword.rotation.y, isLeftSwing ? 175 : -175), 0.35f).SetEase(Ease.OutQuint).OnComplete(() =>
+        m_TfSword.DOLocalRotate(swingRotation, 0.35f).SetEase(Ease.OutQuint).OnComplete(() =>
         {
             m_TfSwordSprite.gameObject.SetActive(false);
             m_TfSword.DOLocalRotate(new Vector3(0, 0, 0), 0);

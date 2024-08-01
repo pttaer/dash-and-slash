@@ -10,6 +10,7 @@ public class MDPlayerMovement : MonoBehaviour
     [SerializeField] int m_Speed = 5;
     [SerializeField] Sprite m_FrontSprite;
     [SerializeField] Sprite m_BackSprite;
+    [SerializeField] ParticleSystem m_RunParticle;
 
     private void Start()
     {
@@ -23,7 +24,18 @@ public class MDPlayerMovement : MonoBehaviour
 
         if (m_Movement.x != 0)
         {
-            m_Sr.flipX = m_Movement.x < 0;
+            bool isMovingLeft = m_Movement.x < 0;
+            m_Sr.flipX = isMovingLeft;
+            m_RunParticle.gameObject.transform.DOLocalMoveX(isMovingLeft ? 0.4f : -0.4f, 0f);
+            m_RunParticle.gameObject.transform.DOScaleX(isMovingLeft ? 1 : -1, 0f);
+            m_RunParticle.Play();
+        }
+        else
+        {
+            if (m_RunParticle.isPlaying)
+            {
+                m_RunParticle.Stop();
+            }
         }
 
         if (m_Movement.y != 0)
